@@ -1,0 +1,66 @@
+experiment_name: face
+description: demo model for cube face
+root_path: /Path/to/your/project_root
+logging_root: results/Demo
+training:
+  num_batch: 1
+  num_epochs: 60
+  num_batch_val: 1
+  val_type: NerVEGrid
+  epochs_til_ckpt : 20
+  steps_til_summary : 20
+  epochs_til_showval: 30
+  clip_grad: False
+  optim:
+    type: Adam
+    lr: 0.0005
+    beta1: 0.9
+    beta2: 0.999
+    amsgrad: False
+  
+testing:
+  num_batch: 1
+  eval_type: pointcloud
+
+dataset:
+  root: /Path/to/your/dataset
+  type: EdgeDataset
+  output_element: face
+  encoder_type: KNNPointcloud
+  output_type: NerVEGrid
+  cube_file: nerve_reso64.pkl
+  encoder_file: pc_obj.pkl
+  pc_normalize: topo
+  grid_size: 64
+
+model:
+  type: EdgeFace
+  predict_type: BCE
+  encoder:
+    input_type: pointcloud
+    backbone: pointgrid
+    grid:
+      grid_size: 64
+      N_knn: 8
+      max_pooling: True
+      mlp:
+        size: [3, 128, 128]
+        activation_type: lrelu
+        num_pos_encoding: -1
+      grid_conv:
+        latent_size: 128
+        conv_dim: 3
+        num_conv: 3
+        activation: lrelu
+        kernel_size: 3
+        padding: 1
+  cube_face:
+    size: [256, 128, 128, 128, 1]
+    activation_type: lrelu
+    num_pos_encoding: -1
+
+loss:
+  face_loss:
+    enable: True
+    factor: 1
+    metric: BCE
